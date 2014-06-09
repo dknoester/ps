@@ -22,7 +22,7 @@
 #include <ea/digital_evolution/discrete_spatial_environment.h>
 #include <ea/digital_evolution/utils/resource_consumption.h>
 #include <ea/digital_evolution/utils/task_switching.h>
-#include <ea/digital_evolution/population_founder.h>
+#include <ea/subpopulation_founder.h>
 #include <ea/datafiles/reactions.h>
 #include <ea/cmdline_interface.h>
 #include <ea/metapopulation.h>
@@ -38,6 +38,15 @@ using namespace ealib;
 LIBEA_MD_DECL(STRIPE_FIT, "ea.stripes.fit", int); // count the number of organisms that have the right color stripe
 LIBEA_MD_DECL(ANCESTOR, "ea.stripes.ancestor", int);
 LIBEA_MD_DECL(NUM_PROPAGULE_CELL, "ea.stripes.num_propagule_cell", int);
+
+
+//! Stripe fitness.
+struct permute_stripes : public fitness_function<unary_fitness<double>, nonstationaryS> {
+    template <typename SubpopulationEA, typename MetapopulationEA>
+    double operator()(SubpopulationEA& sea, MetapopulationEA& mea) {
+        return 1.0;
+    }
+};
 
 
 
@@ -118,87 +127,89 @@ void eval_permute_stripes(EA& ea) {
 
 /*! Compete to evolve stripes -- even number rows nand; odd number rows not
  */
-template <typename EA>
-struct permute_stripes : periodic_event<METAPOP_COMPETITION_PERIOD,EA> {
-    permute_stripes(EA& ea) : periodic_event<METAPOP_COMPETITION_PERIOD,EA>(ea), _df("permute_stripes.dat") {
-        _df.add_field("update")
-        .add_field("mean_fitness")
-        .add_field("max_fitness");
-    }
-    
-    virtual ~permute_stripes() {
-    }
-    
-    virtual void operator()(EA& ea) {
-        using namespace boost::accumulators;
-        accumulator_set<double, stats<tag::mean, tag::max> > fit;
-
-        
-        // calculate "fitness":
-        for(typename EA::iterator i=ea.begin(); i!=ea.end(); ++i) {
-           
-            eval_permute_stripes(i->ea());
-            
-            // copy the stripe fit to the accumulator and also the subpop
-            double sf =get<STRIPE_FIT>(i->ea());
-            fit(sf);
-            put<STRIPE_FIT>(sf, *i);
-            
-        }
-        
-        
-        _df.write(ea.current_update())
-        .write(mean(fit))
-        .write(max(fit))
-        .endl();
-        
-        std::size_t n=get<META_POPULATION_SIZE>(ea);
-        typename EA::population_type offspring; // container of (pointers to) subpopulations
-        recombine_n(ea.population(), offspring,
-                    selection::tournament < access::meta_data<STRIPE_FIT> > (n, ea.population(), ea),
-                    recombination::propagule_without_replacement(),
-                    n, ea);
-        
-
-        
-        configurable_per_site m(get<GERM_MUTATION_PER_SITE_P>(ea));
-        int s = get<POPULATION_SIZE>(ea);
-
-        // Mutate and fill each offspring group.
-        for(typename EA::population_type::iterator i=offspring.begin(); i!=offspring.end(); ++i) {
-            assert((*i)->ea().population().size() == 1);
-
-            // clear founders...
-            (*i)->ea().founder().clear();
-            
-            // mutate it:
-            mutate(**((*i)->ea().population().begin()),m,(*i)->ea());
-            typename EA::individual_type::ea_type::individual_type g = (**((*i)->ea().population().begin()));
-            
-            // add first org as founder
-            (*i)->ea().founder().insert((*i)->ea().founder().end(), (*i)->ea().copy_individual(g));
-            
-            // and fill up the offspring population with copies of the germ:
-            for (int k=1; k<get<NUM_PROPAGULE_CELL>(ea); ++k) {
-                typename EA::individual_type::ea_type::individual_ptr_type o = (*i)->ea().copy_individual(g);
-                (*i)->insert((*i)->end(), o);
-                
-                // move to random location
-                std::size_t pos = (*i)->ea().rng()(s);
-                (*i)->ea().env().move_ind(k, pos);
-                
-                // add org as founders
-                (*i)->ea().founder().insert((*i)->ea().founder().end(), (*i)->ea().copy_individual(*o));
-            }
-        }
-                
-        // swap populations
-        std::swap(ea.population(), offspring);
-        
-        
-    }
-    
-    datafile _df;
-};
+//template <typename EA>
+//struct permute_stripes : periodic_event<METAPOP_COMPETITION_PERIOD,EA> {
+//    permute_stripes(EA& ea) : periodic_event<METAPOP_COMPETITION_PERIOD,EA>(ea), _df("permute_stripes.dat") {
+//        _df.add_field("update")
+//        .add_field("mean_fitness")
+//        .add_field("max_fitness");
+//    }
+//    
+//    virtual ~permute_stripes() {
+//    }
+//    
+//    virtual void operator()(EA& ea) {
+//        using namespace boost::accumulators;
+//        accumulator_set<double, stats<tag::mean, tag::max> > fit;
+//
+//        
+//        // calculate "fitness":
+//        for(typename EA::iterator i=ea.begin(); i!=ea.end(); ++i) {
+//           
+//            eval_permute_stripes(i);
+//            
+//            // copy the stripe fit to the accumulator and also the subpop
+//            double sf =get<STRIPE_FIT>(i);
+//            fit(sf);
+//            put<STRIPE_FIT>(sf, *i);
+//            
+//        }
+//        
+//        
+//        _df.write(ea.current_update())
+//        .write(mean(fit))
+//        .write(max(fit))
+//        .endl();
+//        
+//        std::size_t n=get<METAPOPULATION_SIZE>(ea);
+//        typename EA::population_type offspring; // container of (pointers to) subpopulations
+//        recombine_n(ea.population(), offspring,
+//                    selection::tournament < access::metadata<STRIPE_FIT> > (n, ea.population(), ea),
+//                    recombination::propagule_without_replacement(),
+//                    n, ea);
+//        
+//        configurable_per_site m(get<GERM_MUTATION_PER_SITE_P>(ea));
+//        int s = get<POPULATION_SIZE>(ea);
+//
+//        // Mutate and fill each offspring group.
+//        for(typename EA::population_type::iterator i=offspring.begin(); i!=offspring.end(); ++i) {
+////            // for notational ease, get a ref to the subpopulation:
+////            typename EA::subpopulation_type& sea = **i;
+////            assert(sea.size() == 1);
+////
+////            // clear founders...
+////            founder(sea).clear();
+////            
+////            // mutate it:
+////            mutate(sea.population().begin(), m, sea)
+////            //            mutate(**((*i)->population().begin()),m,*i);
+////            typename EA::subpopulation_type::individual_type& g = *sea.begin();
+////            //            typename EA::subpopulation_type::individual_type g = (**((*i)->population().begin()));
+////            
+////            // add first org as founder
+////            (*i)->founder().insert((*i)->founder().end(), (*i)->copy_individual(g));
+////            
+////            // and fill up the offspring population with copies of the germ:
+////            for (int k=1; k<get<NUM_PROPAGULE_CELL>(ea); ++k) {
+////                typename EA::individual_type::ea_type::individual_ptr_type o = (*i)->ea().copy_individual(g);
+////                (*i)->insert((*i)->end(), o);
+////                
+////                // move to random location
+////                std::size_t pos = (*i)->ea().rng()(s);
+////                (*i)->ea().env().move_ind(k, pos);
+////                
+////                // add org as founders
+////                (*i)->ea().founder().insert((*i)->ea().founder().end(), (*i)->ea().copy_individual(*o));
+////            }
+//        }
+//                
+//        // swap populations
+//        std::swap(ea.population(), offspring);
+//        
+//        
+//    }
+//    
+//    datafile _df;
+//};
 
 #endif

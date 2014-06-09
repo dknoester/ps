@@ -2,8 +2,10 @@
 #include <ea/cmdline_interface.h>
 #include <ea/digital_evolution/ancestors/multi_birth_selfrep_not_ancestor.h>
 #include <ea/digital_evolution/ancestors/multi_birth_selfrep_not_nand_ancestor.h>
-#include <ea/digital_evolution/population_founder.h>
+#include <ea/subpopulation_founder.h>
 #include <ea/line_of_descent.h>
+#include <ea/generational_models/periodic_competition.h>
+#include <ea/generational_models/moran_process.h>
 #include "lod_knockouts.h"
 
 
@@ -13,10 +15,10 @@ using namespace ealib;
 #include "multi_founder.h"
 #include "movie_multi.h"
 #include "location_analysis.h"
-
+#include "subpopulation_propagule.h"
 
 //! Configuration object for an EA.
-struct configuration : public default_configuration {
+struct lifecycle : public default_lifecycle {
     
     //! Called as the final step of EA construction (must not depend on configuration parameters)
     template <typename EA>
@@ -53,7 +55,7 @@ struct configuration : public default_configuration {
         append_isa<if_not_equal>(ea);
         append_isa<jump_head>(ea);
         append_isa<is_neighbor>(ea);
-//        append_isa<is_origin>(ea);
+        //        append_isa<is_origin>(ea);
         
         //        append_isa<get_xy>(ea);
         //        append_isa<get_epigenetic_info>(ea);
@@ -112,23 +114,27 @@ struct configuration : public default_configuration {
 };
 
 
-/*! Artificial life simulation definition.
- */
 typedef digital_evolution
-< configuration
-, organism < >
-, multibirth_selfrep_not_nand_ancestor
+< lifecycle
 , recombination::asexual
 , round_robin
+, multibirth_selfrep_not_nand_ancestor
 , empty_facing_neighbor
-> ea_type;
+, dont_stop
+, generate_single_ancestor
+> sea_type;
 
-
-//! Metapopulation definition:
 typedef metapopulation
-< subpopulation<multi_founder<ea_type>, constant, ea_type, directS, default_lod_traits >,
-ancestors::default_representation,
-mutation::operators::subpopulation_mutator<ea_type::mutation_operator_type>
+< sea_type
+, permute_stripes
+, mutation::operators::no_mutation
+, subpopulation_propagule
+, generational_models::periodic_competition< >
+, ancestors::default_subpopulation
+, dont_stop
+, fill_metapopulation
+, default_lifecycle
+, subpopulation_founder_trait
 > mea_type;
 
 
@@ -140,7 +146,7 @@ public:
     virtual void gather_options() {
         add_option<SPATIAL_X>(this);
         add_option<SPATIAL_Y>(this);
-        add_option<META_POPULATION_SIZE>(this);
+        add_option<METAPOPULATION_SIZE>(this);
         add_option<POPULATION_SIZE>(this);
         add_option<REPRESENTATION_SIZE>(this);
         add_option<SCHEDULER_TIME_SLICE>(this);
@@ -168,29 +174,28 @@ public:
         add_option<METAPOP_COMPETITION_PERIOD>(this);
         add_option<TOURNAMENT_SELECTION_N>(this);
         add_option<TOURNAMENT_SELECTION_K>(this);
-        
-        
     }
     
     virtual void gather_tools() {
-        add_tool<ealib::analysis::movie_multi>(this);
-        add_tool<ealib::analysis::lod_knockouts>(this);
-        add_tool<ealib::analysis::location_analysis>(this);
-
+        //        add_tool<ealib::analysis::movie_multi>(this);
+        //        add_tool<ealib::analysis::lod_knockouts>(this);
+        //        add_tool<ealib::analysis::location_analysis>(this);
     }
     
     virtual void gather_events(EA& ea) {
+        add_event<lod_event>(ea);
+        add_event<subpopulation_founder_event>(ea);
+        add_event<datafiles::mrca_lineage>(ea);
+        
+        
         //        add_event<ts_replication_propagule>(this,ea);
         //        add_event<ps_size_propagule2>(this,ea);
         //        add_event<datafiles::fitness_dat>(ea);
-        add_event<permute_stripes>(ea);
-        add_event<task_performed_tracking>(ea);
-        add_event<task_switch_tracking>(ea);
-        add_event<lod_event>(ea);
-        add_event<datafiles::mrca_lineage>(ea);
-        //add_event<propagule_size_tracking>(ea);
-        add_event<multi_founder_event>(ea);
-        //add_event<reward_tracking>(ea);
+//        add_event<permute_stripes>(ea);
+        //        add_event<task_performed_tracking>(ea);
+        //        add_event<task_switch_tracking>(ea);
+        //        //add_event<propagule_size_tracking>(ea);
+        //        //add_event<reward_tracking>(ea);
     }
 };
 LIBEA_CMDLINE_INSTANCE(mea_type, cli);

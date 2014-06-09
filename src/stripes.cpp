@@ -138,7 +138,7 @@ public:
     virtual void gather_options() {
         add_option<SPATIAL_X>(this);
         add_option<SPATIAL_Y>(this);
-        add_option<META_POPULATION_SIZE>(this);
+        add_option<METAPOPULATION_SIZE>(this);
         add_option<POPULATION_SIZE>(this);
         add_option<REPRESENTATION_SIZE>(this);
         add_option<SCHEDULER_TIME_SLICE>(this);
