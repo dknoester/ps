@@ -48,6 +48,7 @@
 		42441A7E158616AF009863BE /* ps.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ps.xcconfig; sourceTree = "<group>"; };
 		42441A7F158616AF009863BE /* libea_defaults.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = libea_defaults.cfg; sourceTree = "<group>"; };
 		42441A80158616AF009863BE /* Jamroot */ = {isa = PBXFileReference; lastKnownFileType = text; path = Jamroot; sourceTree = "<group>"; };
+		42C26B3D19454D6D00F0E6B9 /* stripes.cfg */ = {isa = PBXFileReference; lastKnownFileType = text; path = stripes.cfg; sourceTree = "<group>"; };
 		42DC570A1940C99D005044F1 /* libea.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libea.a; path = ../DerivedData/research/Build/Products/Debug/libea.a; sourceTree = "<group>"; };
 		42DF06891945418600C9A364 /* subpopulation_propagule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = subpopulation_propagule.h; sourceTree = "<group>"; };
 		48460676192D1D9D005579F9 /* stripes_control.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stripes_control.cpp; sourceTree = "<group>"; };
@@ -116,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				42441A7E158616AF009863BE /* ps.xcconfig */,
+				42C26B3D19454D6D00F0E6B9 /* stripes.cfg */,
 				42441A7F158616AF009863BE /* libea_defaults.cfg */,
 			);
 			path = etc;

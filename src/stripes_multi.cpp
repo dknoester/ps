@@ -80,7 +80,7 @@ struct lifecycle : public default_lifecycle {
     template <typename EA>
     void initialize(EA& ea) {
         typedef typename EA::task_library_type::task_ptr_type task_ptr_type;
-        typedef typename EA::environment_type::resource_ptr_type resource_ptr_type;
+        typedef typename EA::resource_ptr_type resource_ptr_type;
         
         task_ptr_type task_not = make_task<tasks::task_not,catalysts::additive<0> >("not", ea);
         task_ptr_type task_nand = make_task<tasks::task_nand,catalysts::additive<0> >("nand", ea);

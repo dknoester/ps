@@ -60,7 +60,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-c ../etc/libea_defaults.cfg --ea.rng.seed=1 --verbose"
+            argument = "-c ../etc/stripes.cfg --ea.rng.seed=1 --verbose"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
