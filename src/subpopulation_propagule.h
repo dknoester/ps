@@ -44,6 +44,8 @@ struct subpopulation_propagule {
         
         // get a new subpopulation:
         typename MEA::individual_ptr_type p = mea.make_individual();
+        p->initialize(mea.md());
+        p->reset_rng(mea.rng().seed());
         
         // figure out which individuals from the parent comprise the propagule:
         typedef typename MEA::subpopulation_type::population_type propagule_type;

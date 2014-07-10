@@ -42,86 +42,87 @@ LIBEA_MD_DECL(NUM_PROPAGULE_CELL, "ea.stripes.num_propagule_cell", int);
 
 //! Stripe fitness.
 struct permute_stripes : public fitness_function<unary_fitness<double>, nonstationaryS> {
+    template <typename EA>
+    int eval_permute_stripes(EA& ea) {
+        // vert stripes
+        double one_fit_not = 0;
+        double one_fit_nand = 0;
+        double two_fit_not = 0;
+        double two_fit_nand = 0;
+        // horizontal stripes
+        double three_fit_not = 0;
+        double three_fit_nand = 0;
+        double four_fit_not = 0;
+        double four_fit_nand = 0;
+        // diagonal stripes
+        double five_fit_not = 0;
+        double five_fit_nand = 0;
+        double six_fit_not = 0;
+        double six_fit_nand = 0;
+        int num_org = 0;
+        
+        for (int x=0; x < get<SPATIAL_X>(ea); ++x) {
+            for (int y=0; y<get<SPATIAL_Y>(ea); ++y){
+                typename EA::location_type& l = ea.env().location(x,y);
+                if (!l.occupied()) {
+                    continue;
+                }
+                
+                std::string lt = get<LAST_TASK>(*l.inhabitant(),"");
+                // Vertical stripes!
+                if((y % 2) == 0) {
+                    if (lt == "nand") { ++one_fit_nand; }
+                    if (lt == "not") { ++two_fit_not; }
+                } else {
+                    if(lt == "not") { ++one_fit_not; }
+                    if (lt == "nand") { ++two_fit_nand; }
+                }
+                
+                // Horizontal stripes
+                if ((x % 2) == 0) {
+                    if (lt == "nand") { ++three_fit_nand; }
+                    if (lt == "not") { ++four_fit_not; }
+                } else {
+                    if(lt == "not") { ++three_fit_not; }
+                    if (lt == "nand") { ++four_fit_nand; }
+                }
+                
+                // Diagonal stripes
+                if (((x % 2) == 0) && ((y % 2) == 0 )) {
+                    if(lt == "not") { ++five_fit_not; }
+                    if (lt == "nand") { ++six_fit_nand; }
+                } else {
+                    if(lt == "nand") { ++five_fit_nand; }
+                    if (lt == "not") { ++six_fit_not; }
+                }
+            }
+        }
+        
+        double tmp_one_fit = (one_fit_not + 1)  * (one_fit_nand + 1);
+        double tmp_two_fit = (two_fit_not + 1)  * (two_fit_nand + 1);
+        double tmp_three_fit = (three_fit_not + 1)  * (three_fit_nand + 1);
+        double tmp_four_fit = (four_fit_not + 1)  * (four_fit_nand + 1);
+        double tmp_five_fit = (five_fit_not + 1)  * (five_fit_nand + 1);
+        double tmp_six_fit = (six_fit_not + 1)  * (six_fit_nand + 1);
+        double tmp_fit = std::max(tmp_one_fit, tmp_two_fit);
+        tmp_fit = std::max(tmp_fit, tmp_three_fit);
+        tmp_fit = std::max(tmp_fit, tmp_four_fit);
+        tmp_fit = std::max(tmp_fit, tmp_five_fit);
+        tmp_fit = std::max(tmp_fit, tmp_six_fit);
+        
+        return tmp_fit;
+    }
+    
     template <typename SubpopulationEA, typename MetapopulationEA>
     double operator()(SubpopulationEA& sea, MetapopulationEA& mea) {
-        return 1.0;
+        double f = static_cast<double>(eval_permute_stripes(sea));
+        put<STRIPE_FIT>(f,sea);
+        return f;
     }
 };
 
 
 
-template <typename EA>
-void eval_permute_stripes(EA& ea) {
-    // vert stripes
-    double one_fit_not = 0;
-    double one_fit_nand = 0;
-    double two_fit_not = 0;
-    double two_fit_nand = 0;
-    // horizontal stripes
-    double three_fit_not = 0;
-    double three_fit_nand = 0;
-    double four_fit_not = 0;
-    double four_fit_nand = 0;
-    // diagonal stripes
-    double five_fit_not = 0;
-    double five_fit_nand = 0;
-    double six_fit_not = 0;
-    double six_fit_nand = 0;
-    
-    
-    int num_org = 0;
-    
-    for (int x=0; x < get<SPATIAL_X>(ea); ++x) {
-        for (int y=0; y<get<SPATIAL_Y>(ea); ++y){
-            typename EA::environment_type::location_ptr_type l = ea.env().location(x,y);
-            if (!l->occupied()) {
-                continue;
-            }
-            
-            std::string lt = get<LAST_TASK>(*(l->inhabitant()),"");
-            // Vertical stripes!
-            if((y % 2) == 0) {
-                if (lt == "nand") { ++one_fit_nand; }
-                if (lt == "not") { ++two_fit_not; }
-            } else {
-                if(lt == "not") { ++one_fit_not; }
-                if (lt == "nand") { ++two_fit_nand; }
-            }
-            
-            // Horizontal stripes
-            if ((x % 2) == 0) {
-                if (lt == "nand") { ++three_fit_nand; }
-                if (lt == "not") { ++four_fit_not; }
-            } else {
-                if(lt == "not") { ++three_fit_not; }
-                if (lt == "nand") { ++four_fit_nand; }
-            }
-            
-            // Diagonal stripes
-            if (((x % 2) == 0) && ((y % 2) == 0 )) {
-                if(lt == "not") { ++five_fit_not; }
-                if (lt == "nand") { ++six_fit_nand; }
-            } else {
-                if(lt == "nand") { ++five_fit_nand; }
-                if (lt == "not") { ++six_fit_not; }
-            }
-        }
-    }
-    
-    double tmp_one_fit = (one_fit_not + 1)  * (one_fit_nand + 1);
-    double tmp_two_fit = (two_fit_not + 1)  * (two_fit_nand + 1);
-    double tmp_three_fit = (three_fit_not + 1)  * (three_fit_nand + 1);
-    double tmp_four_fit = (four_fit_not + 1)  * (four_fit_nand + 1);
-    double tmp_five_fit = (five_fit_not + 1)  * (five_fit_nand + 1);
-    double tmp_six_fit = (six_fit_not + 1)  * (six_fit_nand + 1);
-    double tmp_fit = std::max(tmp_one_fit, tmp_two_fit);
-    tmp_fit = std::max(tmp_fit, tmp_three_fit);
-    tmp_fit = std::max(tmp_fit, tmp_four_fit);
-    tmp_fit = std::max(tmp_fit, tmp_five_fit);
-    tmp_fit = std::max(tmp_fit, tmp_six_fit);
-    
-    put<STRIPE_FIT>(tmp_fit,ea);
-}
 
 
 

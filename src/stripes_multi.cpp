@@ -19,10 +19,14 @@ using namespace ealib;
 
 //! Configuration object for an EA.
 struct lifecycle : public default_lifecycle {
-    
-    //! Called as the final step of EA construction (must not depend on configuration parameters)
+    /*! Called after EA initialization.
+     
+     This is a good place to handle programmatic setup tasks.  E.g., adding
+     instructions to a digital evolution ISA, loading external data files,
+     and the like.
+     */
     template <typename EA>
-    void after_construction(EA& ea) {
+    void after_initialization(EA& ea) {
         using namespace instructions;
         append_isa<nop_a>(0,ea);
         append_isa<nop_b>(0,ea);
@@ -73,12 +77,7 @@ struct lifecycle : public default_lifecycle {
         add_event<task_resource_consumption>(ea);
         add_event<task_switching_cost>(ea);
         add_event<ts_birth_event>(ea);
-    }
-    
-    //! Initialize! Things are live and are mostly setup. All the objects are there, but they
-    // may not have the parameters that they need.
-    template <typename EA>
-    void initialize(EA& ea) {
+        
         typedef typename EA::task_library_type::task_ptr_type task_ptr_type;
         typedef typename EA::resource_ptr_type resource_ptr_type;
         
@@ -90,8 +89,6 @@ struct lifecycle : public default_lifecycle {
         
         task_not->consumes(resA);
         task_nand->consumes(resB);
-        
-        
     }
     
     //    //! Called to generate the initial EA population.
@@ -191,7 +188,7 @@ public:
         //        add_event<ts_replication_propagule>(this,ea);
         //        add_event<ps_size_propagule2>(this,ea);
         //        add_event<datafiles::fitness_dat>(ea);
-//        add_event<permute_stripes>(ea);
+        //        add_event<permute_stripes>(ea);
         //        add_event<task_performed_tracking>(ea);
         //        add_event<task_switch_tracking>(ea);
         //        //add_event<propagule_size_tracking>(ea);
