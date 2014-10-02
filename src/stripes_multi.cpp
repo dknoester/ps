@@ -110,6 +110,18 @@ struct lifecycle : public default_lifecycle {
     
 };
 
+template <typename T>
+struct subpop_trait : subpopulation_founder_trait<T>, fitness_trait<T> {
+    typedef subpopulation_founder_trait<T> parent1_type;
+    typedef fitness_trait<T> parent2_type;
+    
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+        ar & boost::serialization::make_nvp("subpopulation_founder_trait", boost::serialization::base_object<parent1_type>(*this));
+        ar & boost::serialization::make_nvp("fitness_trait", boost::serialization::base_object<parent2_type>(*this));
+    }
+};
+
 
 typedef digital_evolution
 < lifecycle
@@ -131,7 +143,7 @@ typedef metapopulation
 , dont_stop
 , fill_metapopulation
 , default_lifecycle
-, subpopulation_founder_trait
+, subpop_trait
 > mea_type;
 
 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>2C451C61-153D-4E88-8C24-2FAC1FABEA58</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ps</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>40CDBA693880A33BD8D53784F96767EF7B588934</key>
+		<string>https://github.com/dknoester/ps.git</string>
+		<key>F4E43731183036190F477CF4C99425A6516F08D2</key>
+		<string>https://github.com/dknoester/ealib.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>ps.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>40CDBA693880A33BD8D53784F96767EF7B588934</key>
+		<string>..</string>
+		<key>F4E43731183036190F477CF4C99425A6516F08D2</key>
+		<string>../../ealib</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/dknoester/ps.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>40CDBA693880A33BD8D53784F96767EF7B588934</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F4E43731183036190F477CF4C99425A6516F08D2</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ealib</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>40CDBA693880A33BD8D53784F96767EF7B588934</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ps</string>
+		</dict>
+	</array>
+</dict>
+</plist>
